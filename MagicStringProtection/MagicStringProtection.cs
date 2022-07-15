@@ -1,14 +1,16 @@
 ﻿using Confuser.Core;
 using dnlib.DotNet;
+using System;
+using System.Collections.Generic;
 
 namespace MagicString
 {
-    public interface IMagicStringService
+    internal interface IMagicStringService
     {
         void ExcludeMethod(ConfuserContext context, MethodDef method);
     }
 
-    class MagicStringProtection : Protection, IMagicStringService
+    internal class MagicStringProtection : Protection, IMagicStringService
     {
 
         public override ProtectionPreset Preset => ProtectionPreset.None;
@@ -33,21 +35,7 @@ namespace MagicString
 
         protected override void PopulatePipeline(ProtectionPipeline pipeline)
         {
-            throw new System.NotImplementedException();
-        }
-    }
-
-    class MagicStringPhase : ProtectionPhase
-    {
-        public MagicStringPhase(MagicStringProtection parent) : base(parent) { }
-
-        public override ProtectionTargets Targets => throw new System.NotImplementedException();
-
-        public override string Name => throw new System.NotImplementedException();
-
-        protected override void Execute(ConfuserContext context, ProtectionParameters parameters)
-        {
-            throw new System.NotImplementedException();
+           pipeline.InsertPreStage(PipelineStage.Inspection, new MagicStringPhase(this));
         }
     }
 }
