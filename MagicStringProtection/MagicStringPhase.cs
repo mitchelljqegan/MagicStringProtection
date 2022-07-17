@@ -17,13 +17,29 @@ namespace MagicString
         {
             foreach (ModuleDef module in parameters.Targets.OfType<ModuleDef>())
             {
+                TypeRefUser systemStringClass = new TypeRefUser(module, "System", "String", module.CorLibTypes.AssemblyRef);
+                TypeRefUser systemExceptionClass = new TypeRefUser(module, "System", "Exception", module.CorLibTypes.AssemblyRef);
+
+                MemberRefUser stringStartsWithMethod = new MemberRefUser(module, "StartsWith", MethodSig.CreateInstance(module.CorLibTypes.Boolean, module.CorLibTypes.String), systemStringClass);
+                MemberRefUser exceptionConstructor = new MemberRefUser(module, ".ctor", MethodSig.CreateInstance(module.CorLibTypes.Void), systemExceptionClass);
+
                 foreach (TypeDef type in module.GetTypes())
                 {
                     foreach (MethodDef method in type.Methods)
                     {
-                        method.Body.Instructions.Insert(0, OpCodes.Nop.ToInstruction());
+                        context.CheckCancellation();
 
-                        context.Logger.InfoFormat("Instruction NOP injected into {0}.", method.ToString());
+                        if (method.HasBody)
+                        {
+                            method.Body.Instructions.Insert(0, OpCodes.Ldstr.ToInstruction("magic string"));
+                            method.Body.Instructions.Insert(1, OpCodes.Ldstr.ToInstruction("magic"));
+                            method.Body.Instructions.Insert(2, OpCodes.Call.ToInstruction(stringStartsWithMethod));
+                            method.Body.Instructions.Insert(3, OpCodes.Brfalse_S.ToInstruction(method.Body.Instructions[3]));
+                            method.Body.Instructions.Insert(4, OpCodes.Newobj.ToInstruction(exceptionConstructor));
+                            method.Body.Instructions.Insert(5, OpCodes.Throw.ToInstruction());
+
+                            method.Body.UpdateInstructionOffsets();
+                        }
                     }
                 }
             }

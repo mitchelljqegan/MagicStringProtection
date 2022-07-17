@@ -1,7 +1,5 @@
 ﻿using Confuser.Core;
 using dnlib.DotNet;
-using System;
-using System.Collections.Generic;
 
 namespace MagicString
 {
