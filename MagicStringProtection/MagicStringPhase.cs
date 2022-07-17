@@ -37,8 +37,6 @@ namespace MagicString
                             method.Body.Instructions.Insert(3, OpCodes.Brfalse_S.ToInstruction(method.Body.Instructions[3]));
                             method.Body.Instructions.Insert(4, OpCodes.Newobj.ToInstruction(exceptionConstructor));
                             method.Body.Instructions.Insert(5, OpCodes.Throw.ToInstruction());
-
-                            method.Body.UpdateInstructionOffsets();
                         }
                     }
                 }
